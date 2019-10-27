@@ -3,6 +3,9 @@
 
 import json
 from datetime import datetime
+import sys
+import urllib.request
+import urllib.error
 
 todays_date = datetime.today().date().strftime("%d %b %Y")
 # todays_date = '27 Oct 2019'
@@ -16,9 +19,45 @@ with open('awareness-days.json', 'r', encoding="utf-8") as f:
       theme_list = day["Theme"]
       # break
 
-print(todays_date)
-for theme in theme_list:
-  print(' * ' + theme)
+if len(theme_list) == 0:
+  print('EMPTY!')
+  sys.exit()
 
-# Post theme_list and todays_date to Slack
-print("Posting to Slack...")
+theme_list_text = 'Idag är det:\n'
+for theme in theme_list:
+  theme_list_text += '• ' + theme + '\n' # OBS! Can't print •'s
+
+print(theme_list_text)
+
+try: # Try this!
+    todays_date
+    theme_list
+except NameError:
+    print('Something went wrong')
+    sys.exit()
+
+# Post theme days to Slack channel #random
+webhook_url = 'https://hooks.slack.com/services/###' # Post to #test
+#webhook_url = 'https://hooks.slack.com/services/###' # Post to #random
+slack_data = { "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": theme_list_text
+          }
+        }
+    ]}
+headers = {'Content-type': 'application/json'}
+
+data_bytes = json.dumps(slack_data).encode("utf-8")
+req = urllib.request.Request(webhook_url, data_bytes, headers)
+
+try:
+    post_response = urllib.request.urlopen(req)
+except urllib.error.HTTPError as e:
+    print('The server couldn\'t fulfill the request.')
+    print('Error code: ', e.code)
+except urllib.error.URLError as e:
+    print('We failed to reach a server.')
+    print('Reason: ', e.reason)
