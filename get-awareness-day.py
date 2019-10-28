@@ -8,7 +8,7 @@ import urllib.request
 import urllib.error
 
 todays_date = datetime.today().date().strftime("%d %b %Y")
-# todays_date = '27 Oct 2019'
+# todays_date = '24 Nov 2019'
 
 # Get awareness days
 with open('awareness-days.json', 'r', encoding="utf-8") as f:
@@ -19,22 +19,15 @@ with open('awareness-days.json', 'r', encoding="utf-8") as f:
       theme_list = day["Theme"]
       # break
 
-if len(theme_list) == 0:
-  print('EMPTY!')
+try:
+  theme_list
+except NameError:
+  print("No special day to celebrate today...")
   sys.exit()
 
-theme_list_text = 'Idag är det:\n'
+theme_list_text = ''
 for theme in theme_list:
-  theme_list_text += '• ' + theme + '\n' # OBS! Can't print •'s
-
-print(theme_list_text)
-
-try: # Try this!
-    todays_date
-    theme_list
-except NameError:
-    print('Something went wrong')
-    sys.exit()
+  theme_list_text += '- ' + theme + '\n'
 
 # Post theme days to Slack channel #random
 webhook_url = 'https://hooks.slack.com/services/###' # Post to #test
